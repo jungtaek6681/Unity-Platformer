@@ -17,6 +17,9 @@ public class PlayerController : MonoBehaviour
 	[SerializeField]
 	private float jumpPower;
 
+	[SerializeField]
+	private LayerMask groundLayer;
+
 	private Vector2 moveVec
 	{
 		set
@@ -57,6 +60,22 @@ public class PlayerController : MonoBehaviour
 		AnimatorUpdate();
 	}
 
+	private void FixedUpdate()
+	{
+		Vector2 startVec = new Vector2(transform.position.x, transform.position.y);
+		RaycastHit2D hit = Physics2D.Raycast(startVec, Vector2.down, 1.5f, groundLayer);
+		Debug.DrawRay(startVec, Vector2.down * 1.5f, new Color(0, 0, 1));
+
+		if (null != hit.collider)
+		{
+			IsGround = true;
+		}
+		else
+		{
+			IsGround = false;
+		}
+	}
+
 	private void Move()
 	{
 		rigid.velocity = new Vector2(Input.GetAxis("Horizontal") * moveSpeed, rigid.velocity.y);
@@ -83,13 +102,5 @@ public class PlayerController : MonoBehaviour
 	private void AnimatorUpdate()
 	{
 		moveVec = new Vector2(Mathf.Abs(rigid.velocity.x), rigid.velocity.y);
-	}
-
-	private void OnCollisionEnter2D(Collision2D collision)
-	{
-		if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
-		{
-			IsGround = true;
-		}
 	}
 }
