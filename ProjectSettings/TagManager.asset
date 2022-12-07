@@ -38,6 +38,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: FarGround
+    uniqueID: 2276546381
+    locked: 0
   - name: BackGround
     uniqueID: 59117333
     locked: 0
