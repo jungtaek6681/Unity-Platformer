@@ -47,6 +47,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: GameObject
+    uniqueID: 2190354573
+    locked: 0
   - name: ForeGround
     uniqueID: 2133681759
     locked: 0
