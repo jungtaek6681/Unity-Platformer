@@ -242,6 +242,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abc18bcca8c6a95449dfc501c7af004d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stateText: {fileID: 0}
   moveSpeed: 2
   findRange: 5
 --- !u!1 &150746436
