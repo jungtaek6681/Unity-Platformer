@@ -12,8 +12,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float decelPower;
     [SerializeField] float jumpSpeed;
     [SerializeField] float maxFallSpeed;
+    [SerializeField] LayerMask groundCheckLayer;
 
     private Vector2 inputDir;
+    private bool isGround;
+    private int groundCount;
 
     private void FixedUpdate()
     {
@@ -66,9 +69,27 @@ public class PlayerController : MonoBehaviour
 
     private void OnJump(InputValue value)
     {
-        if (value.isPressed)
+        if (value.isPressed && isGround)
         {
             Jump();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (groundCheckLayer.Contain(collision.gameObject.layer))
+        {
+            groundCount++;
+            isGround = groundCount != 0;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (groundCheckLayer.Contain(collision.gameObject.layer))
+        {
+            groundCount--;
+            isGround = groundCount != 0;
         }
     }
 }
