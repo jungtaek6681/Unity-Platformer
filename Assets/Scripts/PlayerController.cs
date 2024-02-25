@@ -5,6 +5,8 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Component")]
     [SerializeField] new Rigidbody2D rigidbody;
+    [SerializeField] new SpriteRenderer renderer;
+    [SerializeField] Animator animator;
 
     [Header("Spec")]
     [SerializeField] float maxSpeed;
@@ -30,10 +32,14 @@ public class PlayerController : MonoBehaviour
         if (inputDir.x > 0 && rigidbody.velocity.x < maxSpeed)
         {
             rigidbody.AddForce(Vector2.right * inputDir.x * accelPower);
+            animator.SetBool("Move", true);
+            renderer.flipX = false;
         }
         else if (inputDir.x < 0 && rigidbody.velocity.x > -maxSpeed)
         {
             rigidbody.AddForce(Vector2.right * inputDir.x * accelPower);
+            animator.SetBool("Move", true);
+            renderer.flipX = true;
         }
 
         // Top Speed
@@ -42,10 +48,12 @@ public class PlayerController : MonoBehaviour
         if (inputDir.x == 0 && rigidbody.velocity.x > 0.1f)
         {
             rigidbody.AddForce(Vector2.left * decelPower);
+            animator.SetBool("Move", false);
         }
         else if (inputDir.x == 0 && rigidbody.velocity.x < -0.1f)
         {
             rigidbody.AddForce(Vector2.right * decelPower);
+            animator.SetBool("Move", false);
         }
     }
 
@@ -60,6 +68,7 @@ public class PlayerController : MonoBehaviour
         {
             rigidbody.velocity = new Vector2(rigidbody.velocity.x, maxFallSpeed);
         }
+        animator.SetFloat("YSpeed", rigidbody.velocity.y);
     }
 
     private void OnMove(InputValue value)
@@ -81,6 +90,7 @@ public class PlayerController : MonoBehaviour
         {
             groundCount++;
             isGround = groundCount != 0;
+            animator.SetBool("IsGround", isGround);
         }
     }
 
@@ -90,6 +100,7 @@ public class PlayerController : MonoBehaviour
         {
             groundCount--;
             isGround = groundCount != 0;
+            animator.SetBool("IsGround", isGround);
         }
     }
 }
