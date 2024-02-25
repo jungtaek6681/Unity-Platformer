@@ -2,12 +2,13 @@ using UnityEngine;
 
 public class Eagle : Monster
 {
-    public enum State { Idle, Trace, Return }
+    public enum State { Idle, Trace, Return, Size }
 
     [SerializeField] float moveSpeed;
     [SerializeField] float findRange;
 
-    private State state = State.Idle;
+    private IState[] states;
+    private State state;
     private Transform target;
     private Vector2 startPos;
 
@@ -15,53 +16,77 @@ public class Eagle : Monster
     {
         target = GameObject.FindWithTag("Player").transform;
         startPos = transform.position;
+
+        states = new IState[(int)State.Size];
+        states[(int)State.Idle] = new IdleState(this);
+        states[(int)State.Trace] = new TraceState(this);
+        states[(int)State.Return] = new ReturnState(this);
+
+        state = State.Idle;
+        states[(int)State.Idle].Enter();
     }
 
     private void Update()
     {
-        switch (state)
+        states[(int)state].Update();
+    }
+
+    private class BaseState : IState
+    {
+        protected Eagle owner;
+
+        public BaseState(Eagle owner)
         {
-            case State.Idle:
-                IdleUpdate();
-                break;
-            case State.Trace:
-                TraceUpdate();
-                break;
-            case State.Return:
-                ReturnUpdate();
-                break;
+            this.owner = owner;
+        }
+
+        public virtual void Enter() { }
+        public virtual void Update() { }
+        public virtual void Exit() { }
+    }
+
+    private class IdleState : BaseState
+    {
+        public IdleState(Eagle owner) : base(owner) { }
+
+        public override void Update()
+        {
+            if (Vector2.Distance(owner.target.position, owner.transform.position) < owner.findRange)
+            {
+                owner.state = State.Trace;
+            }
         }
     }
 
-    private void IdleUpdate()
+    private class TraceState : BaseState
     {
-        // Do nothing
+        public TraceState(Eagle owner) : base(owner) { }
 
-        if (Vector2.Distance(target.position, transform.position) < findRange)
+        public override void Update()
         {
-            state = State.Trace;
+            Vector2 dir = (owner.target.position - owner.transform.position).normalized;
+            owner.transform.Translate(dir * owner.moveSpeed * Time.deltaTime, Space.World);
+
+            if (Vector2.Distance(owner.target.position, owner.transform.position) > owner.findRange)
+            {
+                owner.state = State.Return;
+            }
         }
     }
 
-    private void TraceUpdate()
+    private class ReturnState : BaseState
     {
-        Vector2 dir = (target.position - transform.position).normalized;
-        transform.Translate(dir * moveSpeed * Time.deltaTime, Space.World);
+        public ReturnState(Eagle owner) : base(owner) { }
 
-        if (Vector2.Distance(target.position, transform.position) > findRange)
+        public override void Update()
         {
-            state = State.Return;
-        }
-    }
+            Vector2 dir = ((Vector3)owner.startPos - owner.transform.position).normalized;
+            owner.transform.Translate(dir * owner.moveSpeed * Time.deltaTime, Space.World);
 
-    private void ReturnUpdate()
-    {
-        Vector2 dir = ((Vector3)startPos - transform.position).normalized;
-        transform.Translate(dir * moveSpeed * Time.deltaTime, Space.World);
-
-        if (Vector2.Distance(startPos, transform.position) < 0.1f)
-        {
-            state = State.Idle;
+            if (Vector2.Distance(owner.startPos, owner.transform.position) < 0.1f)
+            {
+                owner.state = State.Idle;
+            }
         }
     }
 }
